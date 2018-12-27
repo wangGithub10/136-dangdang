@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.dao.OrderDao">
+		
+		<!-- 生成订单 -->
+		<insert id="insert" parameterType="Order">
+			<selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+				SELECT dd_order_seq.nextval FROM dual
+			</selectKey>
+			INSERT INTO dd_order VALUES(#{id},#{total_price,jdbcType=DOUBLE},0,sysdate,#{user_id,jdbcType=INTEGER},#{address_id,jdbcType=INTEGER})
+		</insert>
+		
+		<!-- 查询一个订单 -->
+		<select id="queryOrder" parameterType="java.lang.Integer" resultType="Order">
+			SELECT * FROM dd_order WHERE id = #{id}
+		</select>
+		
+		<!-- 完善订单 -->
+		<update id="update" parameterType="Order">
+			UPDATE dd_order SET total_price=#{total_price},user_id = #{user_id},address_id = #{address_id} WHERE id = #{id}
+		</update>
+		
+</mapper>

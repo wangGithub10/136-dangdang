@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.dao.ProductDao">
+		
+		<!-- 编辑推荐 -->
+		<select id="recommend" resultType="Product">
+			SELECT * FROM dd_product WHERE id IN (15, 16)
+		</select>
+		
+		<!-- 热销图书 -->
+		<select id="hotBook" resultType="Product">
+		<![CDATA[
+				SELECT * FROM
+					(SELECT P .*, ROWNUM r FROM
+							(SELECT * FROM dd_product WHERE sales_volumn > 0 ORDER BY sales_volumn DESC) P) 
+				WHERE r < 9
+			]]>
+		</select>
+		
+		<!-- 最新上架 -->
+		<select id="newBook" resultType="Product">
+			<![CDATA[
+				SELECT * FROM
+					(SELECT P .*, ROWNUM r FROM
+							(SELECT * FROM dd_product ORDER BY shelf_time DESC) P)
+				WHERE r < 9
+			]]>
+		</select>
+		
+		<!-- 新书热卖 -->
+		<select id="newHotBook" resultType="Product">
+			<![CDATA[
+				SELECT * FROM
+					(SELECT P .*, ROWNUM r FROM
+							(SELECT * FROM dd_product ORDER BY shelf_time DESC, sales_volumn DESC ) P)
+				WHERE r < 9
+			]]>
+		</select>
+		
+		<!-- 查询一本图书 -->
+		<select id="queryProduct" parameterType="java.lang.Integer" resultType="Product">
+			SELECT * FROM dd_product WHERE id = #{id}
+		</select>
+		
+		<!-- 修改商品的销量 -->
+		<update id="update" parameterType="java.lang.Integer">
+			UPDATE dd_product SET sales_volumn = #{sales_volumn} WHERE id = #{id}
+		</update>
+		
+</mapper>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.dao.CategoryDao">
+		
+		<resultMap type="Category" id="sort">
+			<!-- 一级分类 -->
+			<id column="cid" property="id"/>
+			<result column="cname" property="name"/>
+			<result column="ccategory_level" property="category_level"/>
+			<result column="cgoods_count" property="goods_count"/>
+			<collection property="categorys" ofType="Category">
+				<!-- 二级分类 -->
+				<id column="c2id" property="id"/>
+				<result column="c2name" property="name"/>
+				<result column="c2category_level" property="category_level"/>
+				<result column="c2goods_count" property="goods_count"/>
+				<collection property="product" ofType="Product">
+					<!-- 分类后的图书 -->
+					<id column="pid" property="id"/>
+					<result column="pbook_name" property="book_name"/>
+					<result column="pimg_name" property="img_name"/>
+					<result column="pauthor" property="author"/>
+					<result column="ppublishing" property="publishing"/>
+					<result column="ppublish_time" property="publish_time"/>
+					<result column="pwhich_edtion" property="which_edtion"/>
+					<result column="pprint_time" property="print_time"/>
+					<result column="pprint_number" property="print_number"/>
+					<result column="pisbn" property="isbn"/>
+					<result column="pword_number" property="word_number"/>
+					<result column="ptotal_page" property="total_page"/>
+					<result column="pformat" property="format"/>
+					<result column="ppaper" property="paper"/>
+					<result column="ppacking" property="packing"/>
+					<result column="pprice" property="price"/>
+					<result column="pdang_price" property="dang_price"/>
+					<result column="precommend" property="recommend"/>
+					<result column="pcontent_introduct" property="content_introduct"/>
+					<result column="pauthor_summary" property="author_summary"/>
+					<result column="pcatalog" property="catalog"/>
+					<result column="pmedia_comment" property="media_comment"/>
+					<result column="pexcerpt" property="excerpt"/>
+					<result column="pclick_rate" property="click_rate"/>
+					<result column="psales_volumn" property="sales_volumn"/>
+					<result column="pshelf_time" property="shelf_time"/>
+					<result column="pcategory_id" property="category_id"/>
+				</collection>
+			</collection>
+		</resultMap>
+		<!-- 为字段定义别名 -->
+		<sql id="product_field">
+			p.id                pid,
+			p.book_name         pbook_name,
+			p.img_name          pimg_name,
+			p.author            pauthor,
+			p.publishing        ppublishing,
+			p.publish_time      ppublish_time,
+			p.which_edtion      pwhich_edtion,
+			p.print_time        pprint_time,
+			p.print_number      pprint_number,
+			p.isbn              pisbn,
+			p.word_number       pword_number,
+			p.total_page        ptotal_page,
+			p.format            pformat,
+			p.paper             ppaper,
+			p.packing           ppacking,
+			p.price             pprice,
+			p.dang_price        pdang_price,
+			p.recommend         precommend,
+			p.content_introduct pcontent_introduct,
+			p.author_summary    pauthor_summary,
+			p.catalog           pcatalog,
+			p.media_comment     pmedia_comment,
+			p.excerpt           pexcerpt,
+			p.click_rate        pclick_rate,
+			p.sales_volumn      psales_volumn,
+			p.shelf_time        pshelf_time,
+			p.category_id       pcategory_id
+		</sql>
+		<!-- 别名字段 -->
+		<sql id="product_field_name">
+			pid,
+			pbook_name,
+			pimg_name,
+			pauthor,
+			ppublishing,
+			ppublish_time,
+			pwhich_edtion,
+			pprint_time,
+			pprint_number,
+			pisbn,
+			pword_number,
+			ptotal_page,
+			pformat,
+			ppaper,
+			ppacking,
+			pprice,
+			pdang_price,
+			precommend,
+			pcontent_introduct,
+			pauthor_summary,
+			pcatalog,
+			pmedia_comment,
+			pexcerpt,
+			pclick_rate,
+			psales_volumn,
+			pshelf_time,
+			pcategory_id
+		</sql>
+		
+		<!-- 查询所有类别 -->
+		<select id="primaryClassification" resultMap="sort">
+			SELECT
+				c. id cid,
+				c. name cname,
+				c.category_level ccategory_level,
+				c. goods_count cgoods_count,
+				c2. id c2id,
+				c2. name c2name,
+				c2.category_level c2category_level,
+				c2. goods_count c2goods_count
+			FROM
+				dd_category c
+			INNER JOIN dd_category c2 ON c. id = c2.parentid
+			<if test="id != 0">
+			WHERE c.id = #{id}
+			</if>
+		</select>
+		
+		<!-- 分类后的图书 -->
+		<select id="secondaryClassification" resultMap="sort">
+			SELECT
+				cid,
+				cname,
+				cgoods_count,
+				c2id,
+				c2name,
+				c2goods_count,
+				<include refid="product_field_name"/>
+			FROM
+				 (SELECT
+					cid,
+					cname,
+					cgoods_count,
+					c2id,
+					c2name,
+					c2goods_count,
+					<include refid="product_field_name"/>,
+					ROWNUM r
+				FROM
+					(SELECT
+						c. id cid,
+						c. name cname,
+						c. goods_count cgoods_count,
+						c2. id c2id,
+						c2. name c2name,
+						c2. goods_count c2goods_count,
+						<include refid="product_field"/>
+					FROM
+						dd_category c
+					INNER JOIN dd_category c2 ON c. id = c2.parentid
+					INNER JOIN dd_product P ON c2. id = P .category_id
+					<where>
+						<if test="id != 0">c.id = #{id}</if>
+						<if test="sid != 0">and c2.id = #{sid}</if>
+					</where>
+					ORDER BY p.shelf_time DESC))
+			WHERE r &gt;= #{pageBean.startIndex} and r &lt;= #{pageBean.finish}
+		</select>
+		
+		<!-- 数据总条数 -->
+		<select id="totalRecord" resultType="java.lang.Integer">
+			SELECT
+				COUNT (*)
+			FROM
+				(SELECT
+					c. ID cid,
+					c2. ID c2id,
+					P .*
+				FROM
+					dd_category c
+				INNER JOIN dd_category c2 ON c. ID = c2.parentid
+				INNER JOIN dd_product P ON c2. ID = P .category_id)
+			<where>
+				<if test="id != 0">cid = #{id}</if>
+				<if test="sid != 0">and c2id = #{sid}</if>
+			</where>
+		</select>
+		
+</mapper>

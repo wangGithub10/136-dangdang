@@ -1,0 +1,30 @@
+server:
+  port: 8989
+  context-path: /dangdang_wyq
+  jsp-servlet:
+    init-parameters:
+      development: true
+spring:
+  mvc:
+    view:
+      prefix: /
+      suffix: .jsp
+  http:
+    encoding:
+      charset: UTF-8
+      force: true
+    multipart:
+      max-file-size: 80MB
+      max-request-size: 100MB
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  datasource:
+    username: hr
+    password: hr
+    url: jdbc:oracle:thin:@localhost:1521:xe
+    driver-class-name: oracle.jdbc.OracleDriver
+    type: com.alibaba.druid.pool.DruidDataSource
+mybatis:
+  mapper-locations: classpath:com/baizhi/mapper/*.xml
+  type-aliases-package: com.baizhi.entity

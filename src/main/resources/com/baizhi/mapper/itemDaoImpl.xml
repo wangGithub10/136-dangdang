@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.dao.ItemDao">
+		
+		<!-- 添加订单项 -->
+		<insert id="insert" parameterType="Item">
+			<selectKey keyProperty="id" resultType="int" order="BEFORE">
+				SELECT dd_item_seq.nextval FROM dual
+			</selectKey>
+			INSERT INTO dd_item VALUES(#{id},#{order_id},#{product_id},#{product_name},#{dang_price},#{product_num},#{amount})
+		</insert>
+		
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.baizhi.dao.UserDao">
+		
+		<!-- 用户的注册 -->
+		<insert id="insert" parameterType="User">
+			<selectKey keyProperty="id" resultType="int" order="BEFORE">
+				SELECT dd_user_seq.nextval FROM dual
+			</selectKey>
+			INSERT INTO dd_user VALUES(#{id},#{email},#{nickname},#{password},#{salt},0,sysdate)
+		</insert>
+		
+		<!-- 修改用户的状态 -->
+		<update id="update" parameterType="java.lang.Integer">
+			UPDATE dd_user SET status = #{status} WHERE id = #{id}
+		</update>
+		
+		<!-- 用作避免用户注册重复 -->
+		<select id="queryUser" parameterType="java.lang.String" resultType="User">
+			SELECT * FROM dd_user WHERE email = #{email}
+		</select>
+		
+		<!-- 用户登陆 -->
+		<select id="queryUser2" parameterType="java.lang.String" resultType="User">
+			SELECT * FROM dd_user WHERE email = #{email} AND password = #{password}
+		</select>
+		
+</mapper>
